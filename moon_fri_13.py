@@ -29,6 +29,12 @@ dom = timezone('America/Dominica')
 
 
 def apsis(year = 2019, body='moon'):
+    '''
+    find the points of in the orbit of the given planet (Moon by default) that are nearest and furthers
+    :param year: year to calculate over
+    :param body: the body to measure distance from the Earth against.  Must be in the ephemris preloaded ephemeris
+    :return: dictionaries of distances in km (body center to body center) of apogees and perigees indexed by datetime (UTC)
+    '''
     picklefile = 'data/apsis.p'
     apogees = None
     perigees = None
@@ -86,6 +92,18 @@ def apsis(year = 2019, body='moon'):
     return apogees, perigees
 
 def main(startyear = 1582, years = 1000, month=10, day=15):
+    '''
+    Generate tables of number of, next and previous occurances of :
+       Full moon falling on Friday the 13th
+       Mini moon falling on Friday the 13th
+       Super moon falling on Friday the 13th
+    Across American timezones and anywhere in the world
+    :param startyear: year to start
+    :param years: number of years to consider
+    :param month: month to start (defaults to first month of Gregorian calendar)
+    :param day: day to start (defaults to first day of Gregorian calendar)
+    :return: nothing
+    '''
     endyear = startyear + years
     picklefile = f"data/fullmoons_{startyear}-{endyear}.p"
     try:
@@ -108,6 +126,12 @@ def main(startyear = 1582, years = 1000, month=10, day=15):
     dump_html(day, fri13, fri13apogee, fri13perigee, month, startyear, total, years)
 
 def find_coincidences(t, y):
+    '''
+    Finds full moons, mini moons, super mons that coincide with Friday the 13th
+    :param t: numpy array of timescales
+    :param y: numpy array of  Skyfield moon phases (2 is full, the one we are looking for here)
+    :return: dictionary of timezones of lists of friday 13 full, mini and super moons
+    '''
     fri13 = {'UTC': [], 'Eastern': [], 'Central': [], 'Mountain': [], 'Pacific': [], 'Alaska': [], 'Hawaii': [], 'Dominican': [], }
     fri13perigee = {'UTC': [], 'Eastern': [], 'Central': [], 'Mountain': [], 'Pacific': [], 'Alaska': [], 'Hawaii': [], 'Dominican': [], }
     fri13apogee = {'UTC': [], 'Eastern': [], 'Central': [], 'Mountain': [], 'Pacific': [], 'Alaska': [], 'Hawaii': [], 'Dominican': [], }
@@ -155,6 +179,18 @@ def find_coincidences(t, y):
     return fri13, fri13apogee, fri13perigee, total
 
 def dump_html(day, fri13, fri13apogee, fri13perigee, month, startyear, total, years):
+    '''
+    outputs the data in html files for easy cut/paste into emails
+    :param fri13:  list of friday the 13th full moons
+    :param fri13apogee:  list of friday the 13th mini moons
+    :param fri13perigee: list of friday the 13th super moon
+    :param month: starting month
+    :param day: starting day of the month
+    :param startyear: starting year
+    :param total: total full moons in the time period
+    :param years: years in the time period
+    :return:  nothing
+    '''
     for timezone in list(fri13.keys())[1:]:
         filename = f"results/FRI13{timezone}.html"
         htmlstr = f"Looking at the {total:,} full moons across 1000 years of the Gregorian Calendar (beginning {month}/{day}/{startyear})"
@@ -209,6 +245,13 @@ def apsisconincidence(apogees, perigees, targetdate):
     return result
 
 def mostrecentnext(datelist, tz):
+    '''
+    generate table cells containing most recent and next two events in the supplie
+    list
+    :param datelist:
+    :param tz: timezone being considered
+    :return:
+    '''
     mostrecent = None
     next2 = []
     returnhtml = ""
